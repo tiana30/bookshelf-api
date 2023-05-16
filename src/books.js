@@ -1,4 +1,4 @@
-const books = ["books empty"];
+const books = [];
 
 
 module.exports = books;
