@@ -2,9 +2,14 @@ const { nanoid } = require('nanoid');
 const books = require('./books');
 
 const getAllBooksHandler = () => ({
+  
     status: 'success',
     data: {
-      books: allBooks,
+      books:books.map(book => ({
+        id: book.id,
+        name: book.name,
+        publisher: book.publisher,
+      })),
     },
   });
 
