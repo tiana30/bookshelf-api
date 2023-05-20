@@ -1,53 +1,19 @@
 const { nanoid } = require('nanoid');
 const books = require('./books');
 
-const getAllBooksHandler = () => ({
-  
-    status: 'success',
-    data: {
-      books:books.map(book => ({
-        id: book.id,
-        name: book.name,
-        publisher: book.publisher,
-      })),
-    },
-  });
-
   const addBookHandler = (request, h) => {
-    const {
-    name,
-    year,
-    author,
-    summary,
-    publisher,
-    pageCount,
-    readPage,
-    reading, 
-    body} = request.payload;
+    const { name, year, author, summary, publisher, pageCount, readPage, reading, body} = request.payload;
 
     const id = nanoid(16);
-    const isFinish = readPage === pageCount;
-    const finished = isFinish; 
+    const isFinished = readPage === pageCount;
+    const finished = isFinished ? true : false;
     const insertedAt = new Date().toISOString();
     const updatedAt = insertedAt;
 
-    const newBook = {
-        id,
-        name,
-        year,
-        author,
-        summary,
-        publisher,
-        pageCount,
-        readPage,
-        finished,
-        reading, 
-        body, 
-        insertedAt, 
-        updatedAt,
+    const newBook = {id, name, year, author, summary, publisher, pageCount, readPage, finished, reading, body, insertedAt, updatedAt,
     };
 
-    if (!name) {
+    if (name === undefined) {
        const response = h.response({
         status: 'fail',
         message: 'Gagal menambahkan buku. Mohon isi nama buku',
@@ -65,26 +31,66 @@ const getAllBooksHandler = () => ({
       return response;
     }
 
-    if (!books.some(book => book.id === id)) {
-      books.push(newBook);
-      const response = h.response({
-        status: 'success',
-        message: 'Buku berhasil ditambahkan',
-        data: {
-          bookId: id,
-        },
-      });
-      response.code(201);
-      return response;
-    }
+    const existingBook = books.findIndex((book) => book.id === id);
+if (existingBook === -1) {
+  books.push(newBook);
+  const response = h.response({
+    status: 'success',
+    message: 'Buku berhasil ditambahkan',
+    data: {
+      bookId: id,
+    },
+  });
+  response.code(201);
+  return response;
+} else {
+  const response = h.response({
+    status: 'fail',
+    message: 'Buku sudah ada',
+  });
+  response.code(400);
+  return response;
+}
 
-      const response = h.response({
-        status: 'fail',
-        message: 'Book failed to add',
-      });
-      response.code(500);
-      return response;
+};
+
+const getAllBooksHandler = () => ({
+  
+  status: 'success',
+  data: {
+    books:books.map(book => ({
+      id: book.id,
+      name: book.name,
+      publisher: book.publisher,
+    })),
+  },
+});
+
+
+const getBookByIdHandler = (request, h) => {
+  const { id } = request.params;
+  
+  const book = books.find((bookId) => bookId.id === id);
+  console.log(book);
+
+  if (book !== null || book !== undefined) {
+    const response = h.response({
+      status: 'success',
+      data: {
+        books,
+      },
+    });
+    response.code(200);
+    return response;
+  }
+
+  const response = h.response({
+    status: 'fail',
+    message: 'Buku tidak ditemukan',
+  });
+  response.code(404);
+  return response;
 };
 
 module.exports = {getAllBooksHandler,
-addBookHandler}
+addBookHandler, getBookByIdHandler}
