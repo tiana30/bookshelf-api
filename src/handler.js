@@ -70,26 +70,27 @@ const getAllBooksHandler = () => ({
 const getBookByIdHandler = (request, h) => {
   const { id } = request.params;
   
-  const book = books.find((bookId) => bookId.id === id);
-  console.log(book);
+  const book = books.find((book) => book.id === id);
 
-  if (book !== null || book !== undefined) {
+  if (book !== undefined) {
     const response = h.response({
       status: 'success',
       data: {
-        books,
+        book,
       },
     });
     response.code(200);
     return response;
   }
 
+  else{
   const response = h.response({
     status: 'fail',
     message: 'Buku tidak ditemukan',
   });
   response.code(404);
   return response;
+}
 };
 
 module.exports = {getAllBooksHandler,
